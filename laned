@@ -1,0 +1,412 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Bildirim göster
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "FLY SYSTEM V4",
+    Text = "Modern Fly GUI loaded successfully",
+    Duration = 5
+})
+
+-- Modern GUI oluştur
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ModernFlyGUI"
+ScreenGui.Parent = player.PlayerGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.1, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 300, 0, 200)
+MainFrame.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(100, 100, 255)
+UIStroke.Thickness = 2
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Parent = MainFrame
+Header.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Header.BorderSizePixel = 0
+Header.Size = UDim2.new(1, 0, 0, 40)
+
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 12)
+HeaderCorner.Parent = Header
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = Header
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.Size = UDim2.new(0, 200, 1, 0)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "FLY CONTROL PANEL"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 14
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = Header
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+CloseButton.BorderSizePixel = 0
+CloseButton.Position = UDim2.new(1, -35, 0.5, -10)
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 12
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = Header
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 180, 60)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Position = UDim2.new(1, -60, 0.5, -10)
+MinimizeButton.Size = UDim2.new(0, 20, 0, 20)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "_"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 12
+
+-- Content
+local Content = Instance.new("Frame")
+Content.Name = "Content"
+Content.Parent = MainFrame
+Content.BackgroundTransparency = 1
+Content.Position = UDim2.new(0, 0, 0, 45)
+Content.Size = UDim2.new(1, 0, 1, -45)
+
+-- Fly Toggle
+local FlyToggleFrame = Instance.new("Frame")
+FlyToggleFrame.Name = "FlyToggleFrame"
+FlyToggleFrame.Parent = Content
+FlyToggleFrame.BackgroundTransparency = 1
+FlyToggleFrame.Size = UDim2.new(1, 0, 0, 50)
+
+local FlyButton = Instance.new("TextButton")
+FlyButton.Name = "FlyButton"
+FlyButton.Parent = FlyToggleFrame
+FlyButton.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+FlyButton.BorderSizePixel = 0
+FlyButton.Position = UDim2.new(0.5, -75, 0, 10)
+FlyButton.Size = UDim2.new(0, 150, 0, 35)
+FlyButton.Font = Enum.Font.GothamBold
+FlyButton.Text = "FLY: OFF"
+FlyButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+FlyButton.TextSize = 14
+
+local FlyButtonCorner = Instance.new("UICorner")
+FlyButtonCorner.CornerRadius = UDim.new(0, 8)
+FlyButtonCorner.Parent = FlyButton
+
+local FlyButtonStroke = Instance.new("UIStroke")
+FlyButtonStroke.Parent = FlyButton
+FlyButtonStroke.Color = Color3.fromRGB(100, 100, 150)
+FlyButtonStroke.Thickness = 2
+
+-- Speed Control
+local SpeedFrame = Instance.new("Frame")
+SpeedFrame.Name = "SpeedFrame"
+SpeedFrame.Parent = Content
+SpeedFrame.BackgroundTransparency = 1
+SpeedFrame.Position = UDim2.new(0, 0, 0, 60)
+SpeedFrame.Size = UDim2.new(1, 0, 0, 50)
+
+local SpeedLabel = Instance.new("TextLabel")
+SpeedLabel.Name = "SpeedLabel"
+SpeedLabel.Parent = SpeedFrame
+SpeedLabel.BackgroundTransparency = 1
+SpeedLabel.Position = UDim2.new(0, 15, 0, 0)
+SpeedLabel.Size = UDim2.new(0, 80, 1, 0)
+SpeedLabel.Font = Enum.Font.Gotham
+SpeedLabel.Text = "SPEED:"
+SpeedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+SpeedLabel.TextSize = 12
+SpeedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local SpeedValue = Instance.new("TextLabel")
+SpeedValue.Name = "SpeedValue"
+SpeedValue.Parent = SpeedFrame
+SpeedValue.BackgroundTransparency = 1
+SpeedValue.Position = UDim2.new(0, 100, 0, 0)
+SpeedValue.Size = UDim2.new(0, 40, 1, 0)
+SpeedValue.Font = Enum.Font.GothamBold
+SpeedValue.Text = "50"
+SpeedValue.TextColor3 = Color3.fromRGB(100, 200, 255)
+SpeedValue.TextSize = 14
+
+local SpeedMinus = Instance.new("TextButton")
+SpeedMinus.Name = "SpeedMinus"
+SpeedMinus.Parent = SpeedFrame
+SpeedMinus.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+SpeedMinus.BorderSizePixel = 0
+SpeedMinus.Position = UDim2.new(0, 150, 0.5, -10)
+SpeedMinus.Size = UDim2.new(0, 25, 0, 25)
+SpeedMinus.Font = Enum.Font.GothamBold
+SpeedMinus.Text = "-"
+SpeedMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedMinus.TextSize = 14
+
+local SpeedPlus = Instance.new("TextButton")
+SpeedPlus.Name = "SpeedPlus"
+SpeedPlus.Parent = SpeedFrame
+SpeedPlus.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+SpeedPlus.BorderSizePixel = 0
+SpeedPlus.Position = UDim2.new(0, 180, 0.5, -10)
+SpeedPlus.Size = UDim2.new(0, 25, 0, 25)
+SpeedPlus.Font = Enum.Font.GothamBold
+SpeedPlus.Text = "+"
+SpeedPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedPlus.TextSize = 14
+
+-- Instructions
+local Instructions = Instance.new("TextLabel")
+Instructions.Name = "Instructions"
+Instructions.Parent = Content
+Instructions.BackgroundTransparency = 1
+Instructions.Position = UDim2.new(0, 15, 0, 120)
+Instructions.Size = UDim2.new(1, -30, 0, 60)
+Instructions.Font = Enum.Font.Gotham
+Instructions.Text = "Controls: W/A/S/D to move\nSpace to go up, Shift to go down\nPress Fly button to toggle"
+Instructions.TextColor3 = Color3.fromRGB(150, 150, 150)
+Instructions.TextSize = 11
+Instructions.TextXAlignment = Enum.TextXAlignment.Left
+Instructions.TextYAlignment = Enum.TextYAlignment.Top
+
+-- Drag functionality
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- Fly System Variables
+local isFlying = false
+local flySpeed = 50
+local bodyVelocity
+local bodyGyro
+local flyConnection
+
+local function startFlying()
+	if isFlying then return end
+	
+	isFlying = true
+	FlyButton.Text = "FLY: ON"
+	FlyButton.TextColor3 = Color3.fromRGB(100, 255, 100)
+	
+	-- Create BodyVelocity and BodyGyro
+	bodyVelocity = Instance.new("BodyVelocity")
+	bodyGyro = Instance.new("BodyGyro")
+	
+	bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+	bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
+	bodyVelocity.Parent = rootPart
+	
+	bodyGyro.D = 100
+	bodyGyro.P = 2000
+	bodyGyro.MaxTorque = Vector3.new(20000, 20000, 20000)
+	bodyGyro.CFrame = rootPart.CFrame
+	bodyGyro.Parent = rootPart
+	
+	humanoid.PlatformStand = true
+	
+	-- Fly connection
+	flyConnection = RunService.Heartbeat:Connect(function()
+		if not isFlying or not bodyVelocity or not bodyGyro or not rootPart then
+			return
+		end
+		
+		local camera = workspace.CurrentCamera
+		local moveDirection = Vector3.new(0, 0, 0)
+		
+		-- Movement inputs
+		if UserInputService:IsKeyDown(Enum.Key.W) then
+			moveDirection = moveDirection + camera.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.Key.S) then
+			moveDirection = moveDirection - camera.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.Key.A) then
+			moveDirection = moveDirection - camera.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.Key.D) then
+			moveDirection = moveDirection + camera.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.Key.Space) then
+			moveDirection = moveDirection + Vector3.new(0, 1, 0)
+		end
+		if UserInputService:IsKeyDown(Enum.Key.LeftShift) or UserInputService:IsKeyDown(Enum.Key.RightShift) then
+			moveDirection = moveDirection + Vector3.new(0, -1, 0)
+		end
+		
+		-- Apply movement
+		if moveDirection.Magnitude > 0 then
+			moveDirection = moveDirection.Unit * flySpeed
+		end
+		
+		bodyVelocity.Velocity = moveDirection
+		bodyGyro.CFrame = camera.CFrame
+	end)
+	
+	-- Bildirim
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = "FLY ENABLED",
+		Text = "Fly mode activated - Use WASD + Space/Shift",
+		Duration = 3
+	})
+end
+
+local function stopFlying()
+	if not isFlying then return end
+	
+	isFlying = false
+	FlyButton.Text = "FLY: OFF"
+	FlyButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+	
+	-- Clean up
+	if flyConnection then
+		flyConnection:Disconnect()
+		flyConnection = nil
+	end
+	
+	if bodyVelocity then
+		bodyVelocity:Destroy()
+		bodyVelocity = nil
+	end
+	
+	if bodyGyro then
+		bodyGyro:Destroy()
+		bodyGyro = nil
+	end
+	
+	humanoid.PlatformStand = false
+	humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	
+	-- Bildirim
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = "FLY DISABLED",
+		Text = "Fly mode deactivated",
+		Duration = 3
+	})
+end
+
+-- Button Events
+FlyButton.MouseButton1Click:Connect(function()
+	if isFlying then
+		stopFlying()
+	else
+		startFlying()
+	end
+end)
+
+SpeedPlus.MouseButton1Click:Connect(function()
+	flySpeed = math.min(flySpeed + 10, 200)
+	SpeedValue.Text = tostring(flySpeed)
+end)
+
+SpeedMinus.MouseButton1Click:Connect(function()
+	flySpeed = math.max(flySpeed - 10, 10)
+	SpeedValue.Text = tostring(flySpeed)
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+	stopFlying()
+	ScreenGui:Destroy()
+end)
+
+local isMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+	if isMinimized then
+		-- Maximize
+		MainFrame.Size = UDim2.new(0, 300, 0, 200)
+		Content.Visible = true
+		isMinimized = false
+	else
+		-- Minimize
+		MainFrame.Size = UDim2.new(0, 300, 0, 40)
+		Content.Visible = false
+		isMinimized = true
+	end
+end)
+
+-- Character respawn handling
+player.CharacterAdded:Connect(function(newCharacter)
+	character = newCharacter
+	humanoid = character:WaitForChild("Humanoid")
+	rootPart = character:WaitForChild("HumanoidRootPart")
+	
+	if isFlying then
+		stopFlying()
+		wait(1)
+		startFlying()
+	end
+end)
+
+-- Cleanup when GUI is destroyed
+ScreenGui.Destroying:Connect(function()
+	stopFlying()
+end)
+
+-- E key toggle
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	
+	if input.KeyCode == Enum.Key.E then
+		if isFlying then
+			stopFlying()
+		else
+			startFlying()
+		end
+	end
+end)
