@@ -1,0 +1,239 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Bildirim göster
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "FLY SISTEMI",
+    Text = "Fly GUI yuklendi!",
+    Duration = 3
+})
+
+-- Basit GUI oluştur
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FlyGUI"
+ScreenGui.Parent = player.PlayerGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.1, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 100)
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+local FlyButton = Instance.new("TextButton")
+FlyButton.Name = "FlyButton"
+FlyButton.Parent = MainFrame
+FlyButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+FlyButton.BorderSizePixel = 0
+FlyButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+FlyButton.Size = UDim2.new(0, 160, 0, 40)
+FlyButton.Font = Enum.Font.GothamBold
+FlyButton.Text = "FLY: KAPALI"
+FlyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlyButton.TextSize = 14
+
+local FlyButtonCorner = Instance.new("UICorner")
+FlyButtonCorner.CornerRadius = UDim.new(0, 6)
+FlyButtonCorner.Parent = FlyButton
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 0, 0, 5)
+Title.Size = UDim2.new(1, 0, 0, 20)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "FLY KONTROL"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 12
+
+-- Drag özelliği
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- FLY SISTEMI
+local isFlying = false
+local flySpeed = 50
+local bodyVelocity
+local bodyGyro
+
+local function enableFly()
+    if isFlying then return end
+    
+    isFlying = true
+    FlyButton.Text = "FLY: ACIK"
+    FlyButton.BackgroundColor3 = Color3.fromRGB(60, 255, 60)
+    
+    -- BodyVelocity ve BodyGyro oluştur
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyGyro = Instance.new("BodyGyro")
+    
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+    
+    bodyGyro.MaxTorque = Vector3.new(100000, 100000, 100000)
+    bodyGyro.P = 10000
+    
+    bodyVelocity.Parent = rootPart
+    bodyGyro.Parent = rootPart
+    
+    humanoid.PlatformStand = true
+    
+    -- Fly loop
+    local flyConnection
+    flyConnection = RunService.Heartbeat:Connect(function()
+        if not isFlying or not bodyVelocity or not bodyGyro then
+            flyConnection:Disconnect()
+            return
+        end
+        
+        local camera = workspace.CurrentCamera
+        bodyGyro.CFrame = camera.CFrame
+        
+        local direction = Vector3.new()
+        
+        if UserInputService:IsKeyDown(Enum.Key.W) then
+            direction = direction + camera.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.Key.S) then
+            direction = direction - camera.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.Key.A) then
+            direction = direction - camera.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.Key.D) then
+            direction = direction + camera.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.Key.Space) then
+            direction = direction + Vector3.new(0, 1, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.Key.LeftShift) then
+            direction = direction - Vector3.new(0, 1, 0)
+        end
+        
+        if direction.Magnitude > 0 then
+            direction = direction.Unit * flySpeed
+        end
+        
+        bodyVelocity.Velocity = direction
+    end)
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "FLY ACIK",
+        Text = "WASD + Space/Shift ile uçabilirsin",
+        Duration = 3
+    })
+end
+
+local function disableFly()
+    if not isFlying then return end
+    
+    isFlying = false
+    FlyButton.Text = "FLY: KAPALI"
+    FlyButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+    
+    if bodyVelocity then
+        bodyVelocity:Destroy()
+        bodyVelocity = nil
+    end
+    if bodyGyro then
+        bodyGyro:Destroy()
+        bodyGyro = nil
+    end
+    
+    humanoid.PlatformStand = false
+    humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "FLY KAPALI",
+        Text = "Fly modu kapatildi",
+        Duration = 2
+    })
+end
+
+-- Buton event
+FlyButton.MouseButton1Click:Connect(function()
+    if isFlying then
+        disableFly()
+    else
+        enableFly()
+    end
+end)
+
+-- E tuşu ile aç/kapa
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.Key.E then
+        if isFlying then
+            disableFly()
+        else
+            enableFly()
+        end
+    end
+end)
+
+-- Karakter değişince
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    
+    if isFlying then
+        disableFly()
+        wait(0.5)
+        enableFly()
+    end
+end)
+
+-- GUI kapanınca
+ScreenGui.Destroying:Connect(function()
+    disableFly()
+end)
+
+print("Fly GUI hazır! E tuşu ile açıp kapatabilirsin.")
