@@ -1,0 +1,509 @@
+-- VTRL Style Modern Admin Menu
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- Modern UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "VTRLStyleMenu"
+screenGui.Parent = game.CoreGui
+
+-- Ana Menü
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 500, 0, 600)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -300)
+mainFrame.BackgroundColor3 = Color3.fromRGB(13, 17, 23)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(48, 54, 61)
+mainStroke.Thickness = 2
+mainStroke.Parent = mainFrame
+
+-- Başlık
+local titleFrame = Instance.new("Frame")
+titleFrame.Size = UDim2.new(1, 0, 0, 70)
+titleFrame.Position = UDim2.new(0, 0, 0, 0)
+titleFrame.BackgroundColor3 = Color3.fromRGB(22, 27, 34)
+titleFrame.BorderSizePixel = 0
+titleFrame.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -120, 1, 0)
+titleLabel.Position = UDim2.new(0, 20, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.Text = "VTRL Tweaks"
+titleLabel.TextSize = 24
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = titleFrame
+
+local subtitleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -120, 0, 20)
+titleLabel.Position = UDim2.new(0, 20, 0, 35)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(139, 148, 158)
+titleLabel.Text = "Type to Search for Tweaks"
+titleLabel.TextSize = 12
+titleLabel.Font = Enum.Font.Gotham
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = titleFrame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -40, 0, 20)
+closeButton.BackgroundColor3 = Color3.fromRGB(48, 54, 61)
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.Text = "X"
+closeButton.TextSize = 16
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Parent = titleFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+-- Arama Kutusu
+local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(1, -40, 0, 45)
+searchBox.Position = UDim2.new(0, 20, 0, 85)
+searchBox.BackgroundColor3 = Color3.fromRGB(22, 27, 34)
+searchBox.TextColor3 = Color3.new(1, 1, 1)
+searchBox.PlaceholderText = "🔍 Type to Search for Tweaks"
+searchBox.PlaceholderColor3 = Color3.fromRGB(139, 148, 158)
+searchBox.Text = ""
+searchBox.TextSize = 14
+searchBox.Font = Enum.Font.Gotham
+searchBox.Parent = mainFrame
+
+local searchCorner = Instance.new("UICorner")
+searchCorner.CornerRadius = UDim.new(0, 8)
+searchCorner.Parent = searchBox
+
+local searchStroke = Instance.new("UIStroke")
+searchStroke.Color = Color3.fromRGB(48, 54, 61)
+searchStroke.Thickness = 2
+searchStroke.Parent = searchBox
+
+-- İçerik Alanı
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, 0, 1, -140)
+contentFrame.Position = UDim2.new(0, 0, 0, 145)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = mainFrame
+
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0, 0)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(48, 54, 61)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 900)
+scrollFrame.Parent = contentFrame
+
+-- Kategori: Tweaks
+local tweaksCategory = Instance.new("TextLabel")
+tweaksCategory.Size = UDim2.new(1, -20, 0, 25)
+tweaksCategory.Position = UDim2.new(0, 10, 0, 10)
+tweaksCategory.BackgroundTransparency = 1
+tweaksCategory.TextColor3 = Color3.fromRGB(139, 148, 158)
+tweaksCategory.Text = "Tweaks"
+tweaksCategory.TextSize = 12
+tweaksCategory.Font = Enum.Font.GothamBold
+tweaksCategory.TextXAlignment = Enum.TextXAlignment.Left
+tweaksCategory.Parent = scrollFrame
+
+-- Tweaks Listesi
+local tweaksList = {
+    "Powerplan", "App Booster", "Focus Mode", "Network Tweaks", 
+    "Network Scripts", "Cleaner", "Debloat", "Startup", "Settings"
+}
+
+for i, tweak in ipairs(tweaksList) do
+    local tweakLabel = Instance.new("TextLabel")
+    tweakLabel.Size = UDim2.new(1, -30, 0, 20)
+    tweakLabel.Position = UDim2.new(0, 20, 0, 35 + (i * 25))
+    tweakLabel.BackgroundTransparency = 1
+    tweakLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    tweakLabel.Text = "  • " .. tweak
+    tweakLabel.TextSize = 12
+    tweakLabel.Font = Enum.Font.Gotham
+    tweakLabel.TextXAlignment = Enum.TextXAlignment.Left
+    tweakLabel.Parent = scrollFrame
+end
+
+-- Kategori: Main
+local mainCategory = Instance.new("TextLabel")
+mainCategory.Size = UDim2.new(1, -20, 0, 25)
+mainCategory.Position = UDim2.new(0, 10, 0, 280)
+mainCategory.BackgroundTransparency = 1
+mainCategory.TextColor3 = Color3.fromRGB(139, 148, 158)
+mainCategory.Text = "Main"
+mainCategory.TextSize = 12
+mainCategory.Font = Enum.Font.GothamBold
+mainCategory.TextXAlignment = Enum.TextXAlignment.Left
+mainCategory.Parent = scrollFrame
+
+local mainList = {"Latency", "Nvidia", "GPU", "Services", "Aesthetics"}
+
+for i, item in ipairs(mainList) do
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Size = UDim2.new(1, -30, 0, 20)
+    itemLabel.Position = UDim2.new(0, 20, 0, 305 + (i * 25))
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    itemLabel.Text = "  • " .. item
+    itemLabel.TextSize = 12
+    itemLabel.Font = Enum.Font.Gotham
+    itemLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemLabel.Parent = scrollFrame
+end
+
+-- Ayarlar Listesi
+local settings = {
+    {
+        title = "🚀 Fly Mode",
+        desc = "Enables flying with WASD + Space/Shift controls",
+        recommended = true,
+        yPos = 450
+    },
+    {
+        title = "👻 NoClip Mode", 
+        desc = "Allows passing through walls and objects",
+        recommended = true,
+        yPos = 530
+    },
+    {
+        title = "🛡️ God Mode",
+        desc = "Makes you immortal and prevents fall damage",
+        recommended = true, 
+        yPos = 610
+    },
+    {
+        title = "⚡ Speed Boost",
+        desc = "Increases walking speed for faster movement",
+        recommended = true,
+        yPos = 690
+    },
+    {
+        title = "🎯 Player ESP",
+        desc = "Highlights other players through walls",
+        recommended = false,
+        yPos = 770
+    },
+    {
+        title = "🔧 Admin Tools",
+        desc = "Gives you special admin tools and weapons",
+        recommended = false,
+        yPos = 850
+    }
+}
+
+local checkboxes = {}
+
+for i, setting in ipairs(settings) do
+    local settingFrame = Instance.new("Frame")
+    settingFrame.Size = UDim2.new(1, -20, 0, 70)
+    settingFrame.Position = UDim2.new(0, 10, 0, setting.yPos)
+    settingFrame.BackgroundColor3 = Color3.fromRGB(22, 27, 34)
+    settingFrame.BorderSizePixel = 0
+    settingFrame.Parent = scrollFrame
+    settingFrame.Name = setting.title
+    
+    local settingCorner = Instance.new("UICorner")
+    settingCorner.CornerRadius = UDim.new(0, 8)
+    settingCorner.Parent = settingFrame
+    
+    local settingStroke = Instance.new("UIStroke")
+    settingStroke.Color = Color3.fromRGB(48, 54, 61)
+    settingStroke.Thickness = 1
+    settingStroke.Parent = settingFrame
+    
+    -- Checkbox
+    local checkbox = Instance.new("TextButton")
+    checkbox.Size = UDim2.new(0, 20, 0, 20)
+    checkbox.Position = UDim2.new(0, 15, 0, 15)
+    checkbox.BackgroundColor3 = Color3.fromRGB(33, 38, 45)
+    checkbox.Text = ""
+    checkbox.Parent = settingFrame
+    
+    local checkboxCorner = Instance.new("UICorner")
+    checkboxCorner.CornerRadius = UDim.new(0, 4)
+    checkboxCorner.Parent = checkbox
+    
+    local checkboxStroke = Instance.new("UIStroke")
+    checkboxStroke.Color = Color3.fromRGB(48, 54, 61)
+    checkboxStroke.Thickness = 2
+    checkboxStroke.Parent = checkbox
+    
+    -- Check işareti
+    local checkMark = Instance.new("TextLabel")
+    checkMark.Size = UDim2.new(1, 0, 1, 0)
+    checkMark.Position = UDim2.new(0, 0, 0, 0)
+    checkMark.BackgroundTransparency = 1
+    checkMark.Text = "✓"
+    checkMark.TextColor3 = Color3.fromRGB(0, 200, 0)
+    checkMark.TextSize = 14
+    checkMark.Font = Enum.Font.GothamBold
+    checkMark.Visible = false
+    checkMark.Parent = checkbox
+    
+    -- Başlık
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -50, 0, 20)
+    titleLabel.Position = UDim2.new(0, 45, 0, 12)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.Text = setting.title
+    titleLabel.TextSize = 14
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = settingFrame
+    
+    -- Recommended badge
+    if setting.recommended then
+        local recommendedLabel = Instance.new("TextLabel")
+        recommendedLabel.Size = UDim2.new(0, 80, 0, 18)
+        recommendedLabel.Position = UDim2.new(0, 45, 0, 35)
+        recommendedLabel.BackgroundColor3 = Color3.fromRGB(35, 134, 54)
+        recommendedLabel.TextColor3 = Color3.new(1, 1, 1)
+        recommendedLabel.Text = "Recommended"
+        recommendedLabel.TextSize = 10
+        recommendedLabel.Font = Enum.Font.GothamBold
+        recommendedLabel.Parent = settingFrame
+        
+        local recommendedCorner = Instance.new("UICorner")
+        recommendedCorner.CornerRadius = UDim.new(0, 4)
+        recommendedCorner.Parent = recommendedLabel
+    end
+    
+    -- Açıklama
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, -50, 0, 30)
+    descLabel.Position = UDim2.new(0, 45, 0, 35)
+    descLabel.BackgroundTransparency = 1
+    descLabel.TextColor3 = Color3.fromRGB(139, 148, 158)
+    descLabel.Text = setting.desc
+    descLabel.TextSize = 11
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.TextYAlignment = Enum.TextYAlignment.Top
+    descLabel.Parent = settingFrame
+    
+    if setting.recommended then
+        descLabel.Position = UDim2.new(0, 45, 0, 55)
+    end
+    
+    checkboxes[setting.title] = {
+        button = checkbox,
+        check = checkMark,
+        enabled = false
+    }
+end
+
+-- Değişkenler
+local flying = false
+local noclip = false
+local godmode = false
+local bodyVelocity
+local bodyGyro
+
+-- Menü sürükleme
+local dragging = false
+local dragInput, dragStart, startPos
+
+titleFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+titleFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Arama fonksiyonu
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local searchText = searchBox.Text:lower()
+    
+    for _, settingFrame in pairs(scrollFrame:GetChildren()) do
+        if settingFrame:IsA("Frame") and settingFrame.Name then
+            local shouldShow = searchText == "" or settingFrame.Name:lower():find(searchText)
+            settingFrame.Visible = shouldShow
+        end
+    end
+end)
+
+-- Kapat butonu
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Checkbox işlevleri
+checkboxes["🚀 Fly Mode"].button.MouseButton1Click:Connect(function()
+    local data = checkboxes["🚀 Fly Mode"]
+    data.enabled = not data.enabled
+    data.check.Visible = data.enabled
+    flying = data.enabled
+    
+    if flying then
+        data.button.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+        
+        local character = player.Character
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                bodyVelocity = Instance.new("BodyVelocity")
+                bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                bodyVelocity.MaxForce = Vector3.new(40000, 40000, 40000)
+                bodyVelocity.Parent = root
+                
+                bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.MaxTorque = Vector3.new(50000, 50000, 50000)
+                bodyGyro.P = 10000
+                bodyGyro.D = 1000
+                bodyGyro.CFrame = root.CFrame
+                bodyGyro.Parent = root
+            end
+        end
+    else
+        data.button.BackgroundColor3 = Color3.fromRGB(33, 38, 45)
+        
+        if bodyVelocity then
+            bodyVelocity:Destroy()
+            bodyVelocity = nil
+        end
+        if bodyGyro then
+            bodyGyro:Destroy()
+            bodyGyro = nil
+        end
+    end
+end)
+
+checkboxes["👻 NoClip Mode"].button.MouseButton1Click:Connect(function()
+    local data = checkboxes["👻 NoClip Mode"]
+    data.enabled = not data.enabled
+    data.check.Visible = data.enabled
+    noclip = data.enabled
+    
+    if data.enabled then
+        data.button.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+    else
+        data.button.BackgroundColor3 = Color3.fromRGB(33, 38, 45)
+    end
+end)
+
+checkboxes["🛡️ God Mode"].button.MouseButton1Click:Connect(function()
+    local data = checkboxes["🛡️ God Mode"]
+    data.enabled = not data.enabled
+    data.check.Visible = data.enabled
+    godmode = data.enabled
+    
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if godmode then
+                data.button.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+                humanoid.MaxHealth = math.huge
+                humanoid.Health = math.huge
+            else
+                data.button.BackgroundColor3 = Color3.fromRGB(33, 38, 45)
+                humanoid.MaxHealth = 100
+                humanoid.Health = 100
+            end
+        end
+    end
+end)
+
+checkboxes["⚡ Speed Boost"].button.MouseButton1Click:Connect(function()
+    local data = checkboxes["⚡ Speed Boost"]
+    data.enabled = not data.enabled
+    data.check.Visible = data.enabled
+    
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if data.enabled then
+                data.button.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+                humanoid.WalkSpeed = 50
+            else
+                data.button.BackgroundColor3 = Color3.fromRGB(33, 38, 45)
+                humanoid.WalkSpeed = 16
+            end
+        end
+    end
+end)
+
+-- Fly kontrolleri
+RunService.Heartbeat:Connect(function()
+    if flying and bodyVelocity and bodyGyro then
+        local character = player.Character
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            local cam = workspace.CurrentCamera
+            if root and cam then
+                bodyGyro.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
+                
+                local direction = Vector3.new(0, 0, 0)
+                local speed = 100
+                
+                if UIS:IsKeyDown(Enum.KeyCode.W) then direction = direction + cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then direction = direction - cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then direction = direction - cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then direction = direction + cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then direction = direction + Vector3.new(0, 1, 0) end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then direction = direction + Vector3.new(0, -1, 0) end
+                
+                if direction.Magnitude > 0 then
+                    direction = direction.Unit * speed
+                end
+                
+                bodyVelocity.Velocity = direction
+            end
+        end
+    end
+    
+    if noclip then
+        local character = player.Character
+        if character then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+print("🎮 VTRL Style Admin Menu yüklendi! Resimdeki gibi modern checkbox menü hazır.")
