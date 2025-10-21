@@ -1,0 +1,420 @@
+-- Modern Hile Menüsü (LocalScript - StarterPlayerScripts)
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Değişkenler
+local noclip = false
+local flying = false
+local godmode = false
+local speed = 16
+local flySpeed = 100
+local bodyVelocity
+local bodyGyro
+
+-- Karakter kontrolü
+local function waitForCharacter()
+    local char = player.Character
+    if char then
+        return char, char:WaitForChild("Humanoid")
+    else
+        char = player.CharacterAdded:Wait()
+        return char, char:WaitForChild("Humanoid")
+    end
+end
+
+local character, humanoid = waitForCharacter()
+
+-- Modern GUI Oluştur
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ModernHileMenusu"
+ScreenGui.Parent = player.PlayerGui
+
+-- Ana Menü Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 350, 0, 0) -- Başlangıçta yüksekliği 0
+MainFrame.Position = UDim2.new(0, 10, 0, 10)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+-- Gradient Background
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(80, 80, 80)
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
+
+-- Başlık
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "⚡ MODERN HİLE MENÜSÜ ⚡"
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = Title
+
+-- Menü İçeriği Container
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, 0, 1, -50)
+ContentFrame.Position = UDim2.new(0, 0, 0, 50)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
+
+-- Hız Ayarı
+local SpeedFrame = createSettingFrame("🎯 OYUNCU HIZI", "0.05", 0)
+local SpeedBox = createTextBox("16", SpeedFrame)
+local SpeedButton = createButton("Uygula", SpeedFrame)
+
+-- Uçma Hızı
+local FlySpeedFrame = createSettingFrame("🚀 UÇMA HIZI", "0.05", 60)
+local FlySpeedBox = createTextBox("100", FlySpeedFrame)
+local FlySpeedButton = createButton("Uygula", FlySpeedFrame)
+
+-- Butonlar
+local FlyButton = createToggleButton("🚀 UÇMA MODU", "0.05", 120, Color3.fromRGB(200, 100, 0))
+local NoclipButton = createToggleButton("👻 NOCLIP MODU", "0.05", 180, Color3.fromRGB(150, 0, 0))
+local GodButton = createToggleButton("🛡️ GOD MODE", "0.05", 240, Color3.fromRGB(0, 100, 0))
+
+-- Aç/Kapat Butonu
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Position = UDim2.new(0, 10, 0, 10)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Text = "☰"
+ToggleButton.TextScaled = true
+ToggleButton.ZIndex = 2
+ToggleButton.Parent = ScreenGui
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleButton
+
+-- Yardımcı Fonksiyonlar
+function createSettingFrame(text, yPosition, yOffset)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.9, 0, 0, 50)
+    frame.Position = UDim2.new(0.05, 0, yPosition, yOffset)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = ContentFrame
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0.6, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Text = text
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextScaled = true
+    label.Parent = frame
+    
+    return frame
+end
+
+function createTextBox(defaultText, parent)
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(0.5, 0, 0.4, 0)
+    box.Position = UDim2.new(0.05, 0, 0.6, 0)
+    box.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    box.Text = defaultText
+    box.PlaceholderText = "Değer girin"
+    box.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = box
+    
+    return box
+end
+
+function createButton(text, parent)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.35, 0, 0.4, 0)
+    button.Position = UDim2.new(0.6, 0, 0.6, 0)
+    button.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = text
+    button.TextScaled = true
+    button.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = button
+    
+    return button
+end
+
+function createToggleButton(text, yPosition, yOffset, color)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.9, 0, 0, 50)
+    button.Position = UDim2.new(0.05, 0, yPosition, yOffset)
+    button.BackgroundColor3 = color
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = text .. ": KAPALI"
+    button.TextScaled = true
+    button.Parent = ContentFrame
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+    
+    return button
+end
+
+-- Animasyon Fonksiyonları
+local menuOpen = false
+
+local function toggleMenu()
+    menuOpen = not menuOpen
+    
+    if menuOpen then
+        -- Açılma animasyonu
+        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        local tween = TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 350, 0, 400)})
+        tween:Play()
+        ToggleButton.Text = "✕"
+    else
+        -- Kapanma animasyonu
+        local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+        local tween = TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 350, 0, 0)})
+        tween:Play()
+        ToggleButton.Text = "☰"
+    end
+end
+
+-- Hız Ayarlama
+SpeedButton.MouseButton1Click:Connect(function()
+    local newSpeed = tonumber(SpeedBox.Text)
+    if newSpeed and newSpeed > 0 then
+        speed = newSpeed
+        setSpeed(speed)
+    else
+        SpeedBox.Text = "Geçersiz!"
+        wait(1)
+        SpeedBox.Text = tostring(speed)
+    end
+end)
+
+-- Uçma Hızı Ayarlama
+FlySpeedButton.MouseButton1Click:Connect(function()
+    local newFlySpeed = tonumber(FlySpeedBox.Text)
+    if newFlySpeed and newFlySpeed > 0 then
+        flySpeed = newFlySpeed
+    else
+        FlySpeedBox.Text = "Geçersiz!"
+        wait(1)
+        FlySpeedBox.Text = tostring(flySpeed)
+    end
+end)
+
+-- Hız Fonksiyonu
+local function setSpeed(speedValue)
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = speedValue
+        end
+    end
+end
+
+-- Noclip Fonksiyonu
+local function noclipLoop()
+    if noclip and character then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end
+
+NoclipButton.MouseButton1Click:Connect(function()
+    noclip = not noclip
+    if noclip then
+        NoclipButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        NoclipButton.Text = "👻 NOCLIP MODU: AÇIK"
+    else
+        NoclipButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        NoclipButton.Text = "👻 NOCLIP MODU: KAPALI"
+        if character then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+end)
+
+-- God Mode Fonksiyonu (Gelişmiş)
+GodButton.MouseButton1Click:Connect(function()
+    godmode = not godmode
+    
+    if godmode then
+        GodButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        GodButton.Text = "🛡️ GOD MODE: AÇIK"
+        
+        -- Karakter ölümlerini engelle
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.BreakJointsOnDeath = false
+                humanoid.Health = math.huge
+                humanoid.MaxHealth = math.huge
+            end
+        end
+    else
+        GodButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+        GodButton.Text = "🛡️ GOD MODE: KAPALI"
+        
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.BreakJointsOnDeath = true
+                humanoid.MaxHealth = 100
+                humanoid.Health = 100
+            end
+        end
+    end
+end)
+
+-- Gelişmiş Uçma Fonksiyonu
+FlyButton.MouseButton1Click:Connect(function()
+    flying = not flying
+    
+    if flying then
+        FlyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        FlyButton.Text = "🚀 UÇMA MODU: AÇIK"
+        
+        -- BodyVelocity ve BodyGyro oluştur
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                bodyVelocity = Instance.new("BodyVelocity")
+                bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+                bodyVelocity.Parent = root
+                
+                bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.MaxTorque = Vector3.new(50000, 0, 50000)
+                bodyGyro.P = 1000
+                bodyGyro.D = 50
+                bodyGyro.Parent = root
+            end
+        end
+    else
+        FlyButton.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
+        FlyButton.Text = "🚀 UÇMA MODU: KAPALI"
+        
+        if bodyVelocity then
+            bodyVelocity:Destroy()
+            bodyVelocity = nil
+        end
+        if bodyGyro then
+            bodyGyro:Destroy()
+            bodyGyro = nil
+        end
+    end
+end)
+
+-- Uçma Kontrolleri
+local flyConnection
+flyConnection = RunService.Heartbeat:Connect(function()
+    if flying and bodyVelocity and bodyGyro and character then
+        local root = character:FindFirstChild("HumanoidRootPart")
+        if root then
+            -- Yön kontrolü
+            bodyGyro.CFrame = CFrame.new(root.Position, root.Position + root.CFrame.LookVector)
+            
+            local direction = Vector3.new(0, 0, 0)
+            
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                direction = direction + root.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                direction = direction - root.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                direction = direction - root.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                direction = direction + root.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                direction = direction + Vector3.new(0, 1, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                direction = direction + Vector3.new(0, -1, 0)
+            end
+            
+            -- Yumuşak hareket
+            if direction.Magnitude > 0 then
+                direction = direction.Unit * flySpeed
+            end
+            
+            bodyVelocity.Velocity = direction
+        end
+    end
+    
+    -- Noclip loop
+    noclipLoop()
+end)
+
+-- Menü Toggle
+ToggleButton.MouseButton1Click:Connect(toggleMenu)
+
+-- Karakter değişimlerini handle et
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+    humanoid = newChar:WaitForChild("Humanoid")
+    
+    wait(1)
+    
+    -- Ayarları yeniden uygula
+    setSpeed(speed)
+    
+    if godmode then
+        humanoid.BreakJointsOnDeath = false
+        humanoid.Health = math.huge
+        humanoid.MaxHealth = math.huge
+    end
+    
+    if flying then
+        -- Uçma modunu yeniden başlat
+        flying = false
+        FlyButton.MouseButton1Click:Fire()
+    end
+end)
+
+-- Anti-Death
+local function preventDeath()
+    if godmode and character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid and humanoid.Health <= 0 then
+            humanoid.Health = math.huge
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(preventDeath)
+
+print("⚡ Modern hile menüsü yüklendi! Sol üst köşedeki butona tıkla.")
