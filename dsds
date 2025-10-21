@@ -1,0 +1,118 @@
+-- Sadece Lua fly menüsü - Roblox'tan bağımsız
+local ucmak = false
+local hiz = 1
+
+-- Ekranı temizle
+function ekraniTemizle()
+    if os.execute("cls") then
+        -- Windows
+    else
+        os.execute("clear") -- Linux/Mac
+    end
+end
+
+-- Menüyü göster
+function menuGoster()
+    print("=================================")
+    print("           UCMA MENUSU          ")
+    print("=================================")
+    print("Durum: " .. (ucmak and "ACIK" or "KAPALI"))
+    print("Hiz: " .. hiz)
+    print("=================================")
+    print("1 - Ucmayi AC")
+    print("2 - Ucmayi KAPAT") 
+    print("3 - Hizi Arttir")
+    print("4 - Hizi Azalt")
+    print("5 - Cikis")
+    print("=================================")
+end
+
+-- Uçma simülasyonu
+function uc()
+    local yukseklik = 0
+    local mesafe = 0
+    
+    while ucmak do
+        ekraniTemizle()
+        print("=================================")
+        print("           UÇUYORSUN!          ")
+        print("=================================")
+        print("Yukseklik: " .. yukseklik .. "m")
+        print("Mesafe: " .. mesafe .. "m")
+        print("Hiz: " .. hiz)
+        print("=================================")
+        print("W - Ileri")
+        print("S - Geri")
+        print("A - Sol")
+        print("D - Sag")
+        print("Space - Yukari")
+        print("Shift - Asagi")
+        print("ESC - Ucmayi Durdur")
+        print("=================================")
+        
+        -- Hareket
+        yukseklik = yukseklik + (hiz * 0.5)
+        mesafe = mesafe + hiz
+        
+        -- 1 saniye bekle
+        os.execute("timeout 1 > nul") -- Windows
+        -- os.execute("sleep 1") -- Linux/Mac
+    end
+end
+
+-- Ana program
+function main()
+    while true do
+        ekraniTemizle()
+        menuGoster()
+        
+        io.write("Seciminiz (1-5): ")
+        local secim = io.read()
+        
+        if secim == "1" then
+            if not ucmak then
+                ucmak = true
+                print("Ucma baslatildi!")
+                uc()
+            else
+                print("Zaten uçuyorsun!")
+            end
+            
+        elseif secim == "2" then
+            if ucmak then
+                ucmak = false
+                print("Ucma durduruldu!")
+            else
+                print("Zaten ucmuyorsun!")
+            end
+            
+        elseif secim == "3" then
+            hiz = hiz + 0.5
+            print("Hiz arttirildi: " .. hiz)
+            
+        elseif secim == "4" then
+            if hiz > 0.5 then
+                hiz = hiz - 0.5
+                print("Hiz azaltildi: " .. hiz)
+            else
+                print("Hiz daha fazla azaltilamaz!")
+            end
+            
+        elseif secim == "5" then
+            ucmak = false
+            print("Program kapatiliyor...")
+            break
+            
+        else
+            print("Gecersiz secim! 1-5 arasi bir sayi girin.")
+        end
+        
+        if secim ~= "1" then
+            print("Devam etmek icin Enter'a basin...")
+            io.read()
+        end
+    end
+end
+
+-- Programı başlat
+main()
