@@ -1,0 +1,740 @@
+-- Ultimate Admin Menu - Sadece İstenen Hileler
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Modern UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UltimateAdminMenu"
+screenGui.Parent = game.CoreGui
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Modern renk paleti
+local Colors = {
+    Background = Color3.fromRGB(13, 17, 23),
+    Secondary = Color3.fromRGB(22, 27, 34),
+    Accent = Color3.fromRGB(0, 100, 200),
+    Success = Color3.fromRGB(35, 134, 54),
+    Danger = Color3.fromRGB(218, 55, 60),
+    Warning = Color3.fromRGB(255, 165, 0),
+    TextPrimary = Color3.fromRGB(248, 248, 248),
+    TextSecondary = Color3.fromRGB(139, 148, 158),
+    Border = Color3.fromRGB(48, 54, 61)
+}
+
+-- Ana Menü
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 800, 0, 600)
+mainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
+mainFrame.BackgroundColor3 = Colors.Background
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+
+-- Modern gölge efekti
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.Position = UDim2.new(0, -10, 0, -10)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.new(0, 0, 0)
+shadow.ImageTransparency = 0.8
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.Parent = mainFrame
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 16)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Colors.Border
+mainStroke.Thickness = 2
+mainStroke.Parent = mainFrame
+
+-- Başlık
+local titleFrame = Instance.new("Frame")
+titleFrame.Size = UDim2.new(1, 0, 0, 70)
+titleFrame.Position = UDim2.new(0, 0, 0, 0)
+titleFrame.BackgroundColor3 = Colors.Secondary
+titleFrame.BorderSizePixel = 0
+titleFrame.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 16)
+titleCorner.Parent = titleFrame
+
+-- Gradient efekti
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Colors.Secondary),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 33, 40))
+})
+gradient.Rotation = 15
+gradient.Parent = titleFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+titleLabel.Position = UDim2.new(0, 25, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Colors.TextPrimary
+titleLabel.Text = "ULTIMATE ADMIN"
+titleLabel.TextSize = 26
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = titleFrame
+
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(0.5, 0, 0, 20)
+subtitleLabel.Position = UDim2.new(0, 25, 0, 40)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.TextColor3 = Colors.TextSecondary
+subtitleLabel.Text = "Sadece İstenen Hileler Aktif!"
+subtitleLabel.TextSize = 12
+subtitleLabel.Font = Enum.Font.Gotham
+subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+subtitleLabel.Parent = titleFrame
+
+-- Modern close butonu
+local closeButton = Instance.new("ImageButton")
+closeButton.Size = UDim2.new(0, 32, 0, 32)
+closeButton.Position = UDim2.new(1, -42, 0, 19)
+closeButton.BackgroundColor3 = Colors.Danger
+closeButton.Image = ""
+closeButton.Parent = titleFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+local closeIcon = Instance.new("TextLabel")
+closeIcon.Size = UDim2.new(1, 0, 1, 0)
+closeIcon.BackgroundTransparency = 1
+closeIcon.TextColor3 = Colors.TextPrimary
+closeIcon.Text = "✕"
+closeIcon.TextSize = 16
+closeIcon.Font = Enum.Font.GothamBold
+closeIcon.Parent = closeButton
+
+-- Arama Kutusu
+local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(0.35, 0, 0, 42)
+searchBox.Position = UDim2.new(0.55, 0, 0, 14)
+searchBox.BackgroundColor3 = Color3.fromRGB(13, 17, 23)
+searchBox.TextColor3 = Colors.TextPrimary
+searchBox.PlaceholderText = "🔍 Hile Ara..."
+searchBox.PlaceholderColor3 = Colors.TextSecondary
+searchBox.Text = ""
+searchBox.TextSize = 14
+searchBox.Font = Enum.Font.Gotham
+searchBox.ClearTextOnFocus = false
+searchBox.Parent = titleFrame
+
+local searchCorner = Instance.new("UICorner")
+searchCorner.CornerRadius = UDim.new(0, 10)
+searchCorner.Parent = searchBox
+
+local searchStroke = Instance.new("UIStroke")
+searchStroke.Color = Colors.Border
+searchStroke.Thickness = 2
+searchStroke.Parent = searchBox
+
+-- Sol Sekme Menüsü
+local tabFrame = Instance.new("Frame")
+tabFrame.Size = UDim2.new(0, 200, 1, -70)
+tabFrame.Position = UDim2.new(0, 0, 0, 70)
+tabFrame.BackgroundColor3 = Colors.Secondary
+tabFrame.BorderSizePixel = 0
+tabFrame.Parent = mainFrame
+
+-- Sağ İçerik Alanı
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, -200, 1, -70)
+contentFrame.Position = UDim2.new(0, 200, 0, 70)
+contentFrame.BackgroundColor3 = Colors.Background
+contentFrame.BorderSizePixel = 0
+contentFrame.Parent = mainFrame
+
+-- Sekmeler - SADECE İSTENEN HİLELER
+local tabs = {
+    {name = "🏠 Ana Sayfa", id = "home", icon = "🏠"},
+    {name = "🚀 Hileler", id = "hacks", icon = "🚀"}
+}
+
+local tabButtons = {}
+local currentTab = "home"
+
+-- HİLE DEĞİŞKENLERİ
+local flying = false
+local noclip = false
+local godmode = false
+local speedBoost = false
+local jumpPower = false
+local infiniteJump = false
+local espEnabled = false
+local bodyVelocity
+local bodyGyro
+local toggleButtons = {}
+
+-- Modern fonksiyonlar
+function createTabFrame(tabId)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.Position = UDim2.new(0, 0, 0, 0)
+    frame.BackgroundTransparency = 1
+    frame.Visible = false
+    frame.Parent = contentFrame
+    frame.Name = tabId
+    return frame
+end
+
+function createScrollFrame(parent)
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Size = UDim2.new(1, 0, 1, 0)
+    scroll.Position = UDim2.new(0, 0, 0, 0)
+    scroll.BackgroundTransparency = 1
+    scroll.ScrollBarThickness = 6
+    scroll.ScrollBarImageColor3 = Colors.Border
+    scroll.ScrollBarImageTransparency = 0.5
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.Parent = parent
+    
+    local uiPadding = Instance.new("UIPadding")
+    uiPadding.PaddingTop = UDim.new(0, 10)
+    uiPadding.PaddingLeft = UDim.new(0, 10)
+    uiPadding.Parent = scroll
+    
+    return scroll
+end
+
+function createToggleButton(name, desc, parent, category)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -20, 0, 90)
+    frame.BackgroundColor3 = Colors.Secondary
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    frame.Name = name
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Colors.Border
+    stroke.Thickness = 1
+    stroke.Parent = frame
+    
+    -- Hover efekti
+    local hover = Instance.new("Frame")
+    hover.Size = UDim2.new(1, 0, 1, 0)
+    hover.BackgroundColor3 = Colors.TextPrimary
+    hover.BackgroundTransparency = 0.95
+    hover.BorderSizePixel = 0
+    hover.Visible = false
+    hover.Parent = frame
+    
+    local hoverCorner = Instance.new("UICorner")
+    hoverCorner.CornerRadius = UDim.new(0, 12)
+    hoverCorner.Parent = hover
+    
+    -- Başlık
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(0.7, 0, 0, 25)
+    titleLabel.Position = UDim2.new(0, 15, 0, 12)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextColor3 = Colors.TextPrimary
+    titleLabel.Text = name
+    titleLabel.TextSize = 16
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = frame
+    
+    -- Açıklama
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(0.7, -10, 0, 40)
+    descLabel.Position = UDim2.new(0, 15, 0, 35)
+    descLabel.BackgroundTransparency = 1
+    descLabel.TextColor3 = Colors.TextSecondary
+    descLabel.Text = desc
+    descLabel.TextSize = 12
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.TextYAlignment = Enum.TextYAlignment.Top
+    descLabel.TextWrapped = true
+    descLabel.Parent = frame
+    
+    -- Toggle Butonu
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(0, 100, 0, 38)
+    toggleButton.Position = UDim2.new(1, -120, 0, 25)
+    toggleButton.BackgroundColor3 = Color3.fromRGB(48, 54, 61)
+    toggleButton.TextColor3 = Colors.TextPrimary
+    toggleButton.Text = "KAPALI"
+    toggleButton.TextSize = 12
+    toggleButton.Font = Enum.Font.GothamBold
+    toggleButton.AutoButtonColor = false
+    toggleButton.Parent = frame
+    
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 8)
+    toggleCorner.Parent = toggleButton
+    
+    local toggleStroke = Instance.new("UIStroke")
+    toggleStroke.Color = Colors.Border
+    toggleStroke.Thickness = 2
+    toggleStroke.Parent = toggleButton
+    
+    -- Hover efektleri
+    frame.MouseEnter:Connect(function()
+        hover.Visible = true
+    end)
+    
+    frame.MouseLeave:Connect(function()
+        hover.Visible = false
+    end)
+    
+    toggleButton.MouseEnter:Connect(function()
+        TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(58, 64, 71)}):Play()
+    end)
+    
+    toggleButton.MouseLeave:Connect(function()
+        local data = toggleButtons[name]
+        if data and not data.enabled then
+            TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(48, 54, 61)}):Play()
+        end
+    end)
+    
+    -- Toggle'ı kaydet
+    toggleButtons[name] = {
+        button = toggleButton,
+        enabled = false,
+        category = category,
+        name = name
+    }
+    
+    -- Click event
+    toggleButton.MouseButton1Click:Connect(function()
+        toggleFeature(name)
+    end)
+    
+    return frame
+end
+
+function toggleFeature(name)
+    local data = toggleButtons[name]
+    if not data then return end
+    
+    data.enabled = not data.enabled
+    
+    if data.enabled then
+        -- Açık animasyonu
+        TweenService:Create(data.button, TweenInfo.new(0.3), {
+            BackgroundColor3 = Colors.Success,
+            Text = "AKTİF"
+        }):Play()
+        activateFeature(name)
+    else
+        -- Kapalı animasyonu
+        TweenService:Create(data.button, TweenInfo.new(0.3), {
+            BackgroundColor3 = Color3.fromRGB(48, 54, 61),
+            Text = "KAPALI"
+        }):Play()
+        deactivateFeature(name)
+    end
+end
+
+-- HİLE AKTİVASYON FONKSİYONLARI
+function activateFeature(name)
+    if name == "Fly Mode" then
+        flying = true
+        local character = player.Character
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                bodyVelocity = Instance.new("BodyVelocity")
+                bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                bodyVelocity.MaxForce = Vector3.new(40000, 40000, 40000)
+                bodyVelocity.Parent = root
+                
+                bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.MaxTorque = Vector3.new(50000, 50000, 50000)
+                bodyGyro.P = 10000
+                bodyGyro.D = 1000
+                bodyGyro.CFrame = root.CFrame
+                bodyGyro.Parent = root
+            end
+        end
+        print("🚀 Fly Mode: AKTİF - W,A,S,D, Space, Shift ile uç!")
+    elseif name == "NoClip Mode" then
+        noclip = true
+        print("🌀 NoClip Mode: AKTİF - Duvarlardan geçebilirsin!")
+    elseif name == "God Mode" then
+        godmode = true
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.MaxHealth = math.huge
+                humanoid.Health = math.huge
+            end
+        end
+        print("🛡️ God Mode: AKTİF - Ölümsüz oldun!")
+    elseif name == "Speed Boost" then
+        speedBoost = true
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 50
+            end
+        end
+        print("💨 Speed Boost: AKTİF - Hızın arttı!")
+    elseif name == "Infinite Jump" then
+        infiniteJump = true
+        print("🦘 Infinite Jump: AKTİF - Sonsuz zıplama!")
+    elseif name == "High Jump" then
+        jumpPower = true
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = 100
+            end
+        end
+        print("🏀 High Jump: AKTİF - Yüksek zıplama!")
+    elseif name == "Player ESP" then
+        espEnabled = true
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player and otherPlayer.Character then
+                local highlight = Instance.new("Highlight")
+                highlight.FillColor = Color3.new(1, 0, 0)
+                highlight.OutlineColor = Color3.new(1, 1, 0)
+                highlight.FillTransparency = 0.5
+                highlight.OutlineTransparency = 0
+                highlight.Parent = otherPlayer.Character
+            end
+        end
+        print("👁️ Player ESP: AKTİF - Oyuncuları görüyorsun!")
+    end
+end
+
+function deactivateFeature(name)
+    if name == "Fly Mode" then
+        flying = false
+        if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
+        if bodyGyro then bodyGyro:Destroy() bodyGyro = nil end
+        print("🚀 Fly Mode: DEVRE DIŞI")
+    elseif name == "NoClip Mode" then
+        noclip = false
+        print("🌀 NoClip Mode: DEVRE DIŞI")
+    elseif name == "God Mode" then
+        godmode = false
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.MaxHealth = 100
+                humanoid.Health = 100
+            end
+        end
+        print("🛡️ God Mode: DEVRE DIŞI")
+    elseif name == "Speed Boost" then
+        speedBoost = false
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
+        end
+        print("💨 Speed Boost: DEVRE DIŞI")
+    elseif name == "Infinite Jump" then
+        infiniteJump = false
+        print("🦘 Infinite Jump: DEVRE DIŞI")
+    elseif name == "High Jump" then
+        jumpPower = false
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = 50
+            end
+        end
+        print("🏀 High Jump: DEVRE DIŞI")
+    elseif name == "Player ESP" then
+        espEnabled = false
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer.Character then
+                local highlight = otherPlayer.Character:FindFirstChild("Highlight")
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+        end
+        print("👁️ Player ESP: DEVRE DIŞI")
+    end
+end
+
+function switchTab(tabId)
+    currentTab = tabId
+    
+    -- Tüm sekmeleri gizle
+    for _, tab in ipairs(tabs) do
+        local frame = contentFrame:FindFirstChild(tab.id)
+        if frame then
+            frame.Visible = false
+        end
+        if tabButtons[tab.id] then
+            TweenService:Create(tabButtons[tab.id], TweenInfo.new(0.3), {
+                BackgroundColor3 = Colors.Secondary,
+                TextColor3 = Colors.TextSecondary
+            }):Play()
+        end
+    end
+    
+    -- Aktif sekme
+    local activeFrame = contentFrame:FindFirstChild(tabId)
+    if activeFrame then
+        activeFrame.Visible = true
+    end
+    if tabButtons[tabId] then
+        TweenService:Create(tabButtons[tabId], TweenInfo.new(0.3), {
+            BackgroundColor3 = Colors.Accent,
+            TextColor3 = Colors.TextPrimary
+        }):Play()
+    end
+end
+
+-- Modern sekme butonları oluştur
+for i, tab in ipairs(tabs) do
+    local tabButton = Instance.new("TextButton")
+    tabButton.Size = UDim2.new(1, -15, 0, 52)
+    tabButton.Position = UDim2.new(0, 7, 0, 15 + (i * 60))
+    tabButton.BackgroundColor3 = Colors.Secondary
+    tabButton.TextColor3 = Colors.TextSecondary
+    tabButton.Text = "  " .. tab.icon .. "  " .. tab.name
+    tabButton.TextSize = 14
+    tabButton.Font = Enum.Font.Gotham
+    tabButton.TextXAlignment = Enum.TextXAlignment.Left
+    tabButton.AutoButtonColor = false
+    tabButton.Parent = tabFrame
+    
+    local tabCorner = Instance.new("UICorner")
+    tabCorner.CornerRadius = UDim.new(0, 10)
+    tabCorner.Parent = tabButton
+    
+    local tabStroke = Instance.new("UIStroke")
+    tabStroke.Color = Colors.Border
+    tabStroke.Thickness = 1
+    tabStroke.Parent = tabButton
+    
+    -- Hover efekti
+    tabButton.MouseEnter:Connect(function()
+        if currentTab ~= tab.id then
+            TweenService:Create(tabButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(28, 33, 40)
+            }):Play()
+        end
+    end)
+    
+    tabButton.MouseLeave:Connect(function()
+        if currentTab ~= tab.id then
+            TweenService:Create(tabButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = Colors.Secondary
+            }):Play()
+        end
+    end)
+    
+    tabButtons[tab.id] = tabButton
+    
+    tabButton.MouseButton1Click:Connect(function()
+        switchTab(tab.id)
+    end)
+end
+
+-- Home Sekmesi
+local homeFrame = createTabFrame("home")
+local homeScroll = createScrollFrame(homeFrame)
+
+local welcomeFrame = Instance.new("Frame")
+welcomeFrame.Size = UDim2.new(1, -20, 0, 200)
+welcomeFrame.BackgroundColor3 = Colors.Secondary
+welcomeFrame.Parent = homeScroll
+
+local welcomeCorner = Instance.new("UICorner")
+welcomeCorner.CornerRadius = UDim.new(0, 12)
+welcomeCorner.Parent = welcomeFrame
+
+local welcomeStroke = Instance.new("UIStroke")
+welcomeStroke.Color = Colors.Border
+welcomeStroke.Thickness = 1
+welcomeStroke.Parent = welcomeFrame
+
+local welcomeLabel = Instance.new("TextLabel")
+welcomeLabel.Size = UDim2.new(1, -20, 1, -20)
+welcomeLabel.Position = UDim2.new(0, 10, 0, 10)
+welcomeLabel.BackgroundTransparency = 1
+welcomeLabel.TextColor3 = Colors.TextPrimary
+welcomeLabel.Text = "🎮 ULTIMATE ADMIN - Sadece İstenen Hileler!\n\nHoş geldin! Sol menüden tüm hilelere erişebilirsin.\n\n✨ Mevcut Hileler:\n• Fly Mode 🚀 - Uçma\n• NoClip Mode 🌀 - Duvarlardan geç\n• God Mode 🛡️ - Ölümsüzlük\n• Speed Boost 💨 - Hız artışı\n• Infinite Jump 🦘 - Sonsuz zıplama\n• High Jump 🏀 - Yüksek zıplama\n• Player ESP 👁️ - Oyuncu görünürlüğü"
+welcomeLabel.TextSize = 14
+welcomeLabel.Font = Enum.Font.Gotham
+welcomeLabel.TextYAlignment = Enum.TextYAlignment.Top
+welcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+welcomeLabel.TextWrapped = true
+welcomeLabel.Parent = welcomeFrame
+
+-- Hileler Sekmesi - SADECE İSTENEN HİLELER
+local hacksFrame = createTabFrame("hacks")
+local hacksScroll = createScrollFrame(hacksFrame)
+
+-- İSTENEN HİLELER
+local hacksList = {
+    {name = "Fly Mode", desc = "W,A,S,D + Space/Shift ile uçma"},
+    {name = "NoClip Mode", desc = "Duvarlardan ve objelerden geçme"},
+    {name = "God Mode", desc = "Ölümsüz ol ve hasar almama"},
+    {name = "Speed Boost", desc = "Hareket hızını arttırma"},
+    {name = "Infinite Jump", desc = "Sonsuz zıplama özelliği"},
+    {name = "High Jump", desc = "Yüksek zıplama gücü"},
+    {name = "Player ESP", desc = "Diğer oyuncuları duvarların arkasından görme"}
+}
+
+for i, hack in ipairs(hacksList) do
+    createToggleButton(hack.name, hack.desc, hacksScroll, "hacks")
+end
+
+-- Menü sürükleme
+local dragging = false
+local dragInput, dragStart, startPos
+
+titleFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+titleFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Arama fonksiyonu
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local searchText = searchBox.Text:lower()
+    
+    for name, data in pairs(toggleButtons) do
+        local frame = data.button.Parent
+        if frame then
+            local shouldShow = searchText == "" or name:lower():find(searchText)
+            frame.Visible = shouldShow
+        end
+    end
+end)
+
+-- Kapat butonu
+closeButton.MouseButton1Click:Connect(function()
+    TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0)
+    }):Play()
+    wait(0.3)
+    screenGui:Destroy()
+end)
+
+-- Fly kontrolleri
+RunService.Heartbeat:Connect(function()
+    if flying and bodyVelocity and bodyGyro then
+        local character = player.Character
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            local cam = workspace.CurrentCamera
+            if root and cam then
+                bodyGyro.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
+                
+                local direction = Vector3.new(0, 0, 0)
+                local speed = 100
+                
+                if UIS:IsKeyDown(Enum.KeyCode.W) then direction = direction + cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then direction = direction - cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then direction = direction - cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then direction = direction + cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then direction = direction + Vector3.new(0, 1, 0) end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then direction = direction + Vector3.new(0, -1, 0) end
+                
+                if direction.Magnitude > 0 then
+                    direction = direction.Unit * speed
+                end
+                
+                bodyVelocity.Velocity = direction
+            end
+        end
+    end
+    
+    if noclip then
+        local character = player.Character
+        if character then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+    
+    -- Infinite Jump
+    if infiniteJump then
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end
+    end
+end)
+
+-- İlk sekme
+switchTab("hacks")
+
+-- Açılış animasyonu
+mainFrame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 800, 0, 600),
+    Position = UDim2.new(0.5, -400, 0.5, -300)
+}):Play()
+
+print("🎮 ULTIMATE ADMIN MENÜSÜ YÜKLENDİ!")
+print("✅ SADECE İSTENEN HİLELER AKTİF:")
+print("")
+print("🚀 MEVCUT HİLELER:")
+print("   • Fly Mode - W,A,S,D + Space/Shift ile uç")
+print("   • NoClip Mode - Duvarlardan geç")
+print("   • God Mode - Ölümsüzlük")
+print("   • Speed Boost - Hız artışı")
+print("   • Infinite Jump - Sonsuz zıplama")
+print("   • High Jump - Yüksek zıplama")
+print("   • Player ESP - Oyuncu görünürlüğü")
+print("")
+print("🎮 Oyun keyfini çıkar! 👑")
